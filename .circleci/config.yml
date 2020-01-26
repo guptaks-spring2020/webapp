@@ -53,6 +53,59 @@ jobs:
             ls -a
             python3 manage.py test account.tests
 
+  pr_check:
+    docker:
+      - image: circleci/python:3.7.6
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
+          DATABASE_URL: postgresql://root@localhost/circle_test?sslmode=disable
+      - image: circleci/postgres
+        environment:
+          POSTGRES_USER: myprojectuser
+          POSTGRES_DB: circle_test
+
+    steps:
+      - checkout
+      #      - restore_cache:
+      #          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
+
+      - run:
+          name: Setup virtual environment
+          command: |
+            python3 -m venv env
+            source env/bin/activate
+
+      - run:
+          name: Install django
+          command: |
+            . env/bin/activate
+            pip install django
+
+      - run:
+          name: Install django rest framework
+          command: |
+            . env/bin/activate
+            pip install djangorestframework
+
+      - run:
+          name: Install psycopg2
+          command: |
+            . env/bin/activate
+            pip install psycopg2
+
+      - run:
+          name: Install bcrypt
+          command: |
+            . env/bin/activate
+            pip install bcrypt==3.1.7
+
+      - run:
+          name: Running tests
+          command: |
+            . env/bin/activate
+            ls -a
+            python3 manage.py test account.tests
+
 #      - save_cache:
 #          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
 #          paths:
@@ -61,3 +114,12 @@ jobs:
       - store_artifacts:
           path: test-reports/
           destination: python_app
+
+workflows:
+  version: 2
+  pr-check:
+    jobs:
+      - pr_check
+  build_deploy:
+    jobs:
+      - build
