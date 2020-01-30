@@ -20,7 +20,7 @@ UPDATE_SUCCESS = 'updated'
 CREATE_SUCCESS = 'created'
 
 def handle404(request, exception):
-    pdb.set_trace()
+
     raise Http404("This url does not exist")
 
 
@@ -67,8 +67,17 @@ def manage_user_bill_by_id(request, id):
         serializer = BillUpdateSerializer(bill, data=request.data)
         data = {}
         if serializer.is_valid():
-            serializer.save()
-            data['response'] = 'successfully updated.'
+            bill = serializer.save()
+            data["id"] = bill.id
+            data["created_ts"] = bill.created_ts
+            data["updated_ts"] = bill.updated_ts
+            data["owner_id"] = bill.owner_id.id
+            data["vendor"] = bill.vendor
+            data["bill_date"] = bill.bill_date
+            data["due_date"] = bill.due_date
+            data["amount_due"] = bill.amount_due
+            data["categories"] = bill.categories
+            data["paymentStatus"] = bill.paymentStatus
             return Response(data=data, status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
