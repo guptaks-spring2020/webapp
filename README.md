@@ -2,7 +2,7 @@
 
 
 
-##Built with:
+## Built with:
 
 1. **pip** - package-management system used to install and manage software packages written in Python
 
@@ -15,10 +15,10 @@
 5. git - Free and Open-Source distributed version control system
 
 
-##External Tools Used:
+## External Tools Used:
 Postman: API Development Environment
 
-##Build and deploy instructions for web application:
+## Build and deploy instructions for web application:
 - Create your own fork the repository
 - Download the zip or clone from the fork
 - Unzip the file if you downloaded one
@@ -27,12 +27,12 @@ and the following commands in terminal:
 
 
 
-####Setup virtual environment
+#### Setup virtual environment
   
 $ python3 -m venv env
 $ source env/bin/activate
 
-####Install django
+#### Install django
   
 $ pip install django
 
@@ -67,10 +67,10 @@ $ exit
 #### Run Application
 $ python manage.py runserver
 
-####Run Test Cases
+#### Run Test Cases
 $ python3 manage.py test account.tests
 
-###To contribute
+### To contribute
 - Create a branch using
 $ git checkout -b <branch name>
 
