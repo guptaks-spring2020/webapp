@@ -15,7 +15,7 @@ def registration_view(request):
         data = {}
         if serializer.is_valid():
             account = serializer.save()
-            data['response'] = 'User has been successfull registered'
+            data['response'] = 'User has been successfully registered'
             data['uuid_id'] = account.id
             data['email_address'] = account.email_address
             data['first_name']= account.first_name
@@ -24,23 +24,6 @@ def registration_view(request):
             data['account_updated'] = account.account_updated
             return Response(data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# @api_view(['GET', ])
-# @authentication_classes([BasicAuthentication, ])
-# @permission_classes((IsAuthenticated,))
-# def get_user_detail_view(request):
-#     try:
-#         #pdb.set_trace()
-#         account = UserAccount.objects.get(email_address=request.user)
-#         print("inside try")
-#     except UserAccount.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-#
-#     if request.method == 'GET':
-#         serializer = UserSerializer(account)
-#         #print("Valid Password")
-#         return Response(serializer.data)
 
 
 @api_view(['GET', 'PUT' ])
@@ -57,12 +40,10 @@ def update_user_view(request):
         data = {}
         if serializer.is_valid():
             serializer.save()
-            data['response'] = 'successfully updated.'
-            return Response(data=data, status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     if request.method == 'GET':
         print(account)
         serializer = UserSerializer(account)
-        #print("Valid Password")
         return Response(serializer.data)
