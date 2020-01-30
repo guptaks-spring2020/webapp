@@ -15,11 +15,10 @@ def registration_view(request):
         data = {}
         if serializer.is_valid():
             account = serializer.save()
-            data['response'] = 'User has been successfully registered'
-            data['uuid_id'] = account.id
-            data['email_address'] = account.email_address
+            data['id'] = account.id
             data['first_name']= account.first_name
             data['last_name'] = account.last_name
+            data['email_address'] = account.email_address
             data['account_created'] = account.account_created
             data['account_updated'] = account.account_updated
             return Response(data, status=status.HTTP_201_CREATED)
