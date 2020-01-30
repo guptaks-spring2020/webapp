@@ -15,21 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from bills.api.views import manage_user_bill_by_id, get_bills_view, create_bill_view
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('v1/', include('account.api.urls', 'account_api')),
+    path('v1/bills', get_bills_view, name="get_bills" ),
+    path('v1/bill/<uuid:id>', manage_user_bill_by_id, name="bill_id_operations"),
+    path('v1/bill/', create_bill_view, name="post_bill"),
 ]
-
-# from django.contrib import admin
-# from django.urls import path
-# from account.api.views import registration_view, get_user_detail_view, update_user_view
-
-# app_name = 'account'
-
-# urlpatterns = [
-#     path('admin/', admin.site.urls),
-#     path('v1/user/', registration_view, name="register"),
-#     path('v1/user/self/get/', api_detail_view, name="get"),
-#     path('v1/user/self/put/', api_update_view, name="put"),
-# ]

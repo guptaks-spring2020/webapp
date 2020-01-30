@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '4b7#kvtvz6&c2=y-4$6e=gb1vev6srt&s*ra=n2p7rt^@c*suc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'account',
     'rest_framework.authtoken',
+    'bills'
 ]
 
 AUTH_USER_MODEL = 'account.UserAccount'
@@ -60,10 +61,13 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'webapp.urls'
 
+TEMPLATE_DIR = os.path.join(BASE_DIR,"templates")
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

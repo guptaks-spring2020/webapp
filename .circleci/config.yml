@@ -122,4 +122,7 @@ workflows:
       - pr_check
   build_deploy:
     jobs:
-      - build
+      - build:
+          filters:
+            branches:
+              only: master
