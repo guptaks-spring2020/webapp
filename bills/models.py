@@ -7,6 +7,13 @@ from django.contrib.postgres.fields import ArrayField
 # Create your models here.
 
 
+class BillFile(models.Model):
+    file_name = models.CharField(max_length=50, null=False, blank=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    url = models.FileField(blank=False, null=False)
+    upload_date = models.DateTimeField(verbose_name='account created', auto_now_add=True)
+
+
 class Bills(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     owner_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='owner_id')
@@ -38,4 +45,4 @@ class Bills(models.Model):
             size=8,
         )
 
-
+    attachment = models.ForeignKey(BillFile, on_delete=models.CASCADE, null=True)
