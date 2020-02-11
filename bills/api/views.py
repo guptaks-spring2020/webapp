@@ -1,3 +1,5 @@
+import os
+
 from django.db.models import Q
 from django.shortcuts import render
 from rest_framework import status
@@ -16,6 +18,8 @@ from bills.api.serializers import CreateBillSerializer, BillSerializer, BillUpda
 
 
 import pdb
+
+from webapp import settings
 
 SUCCESS = 'success'
 ERROR = 'error'
@@ -47,7 +51,7 @@ def load_bill_file_data(bill_file):
     data = {}
     data["file_name"] = bill_file.file_name
     data["id"] = bill_file.id
-    data["url"] = bill_file.url
+    data["url"] = str(bill_file.url.url)
     data["upload_date"] = bill_file.upload_date
     return data
 
@@ -156,6 +160,13 @@ def get_bills_view(request):
 #
 #     bill_file = BillFile(id=bill)
 
+def check_file_type(value):
+    pdb.set_trace()
+    arr = ['pdf', 'png', 'jpg', 'jpeg']
+
+    if not any(c in value for c in arr):
+        return "invalid"
+
 
 class FileView(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -166,6 +177,14 @@ class FileView(APIView):
 
         try:
             pdb.set_trace()
+            # request.data['url'].content_type
+            # 'application/pdf'
+            value = check_file_type(request.data['url'].content_type)
+            size = request.data['url'].size
+
+            if value == "invalid":
+                return Response("Allowed file types pdf, png, jpg or jpeg", status=status.HTTP_400_BAD_REQUEST)
+
             bill = Bills.objects.get(id=kwargs['id'])
 
         except Bills.DoesNotExist:
@@ -174,17 +193,24 @@ class FileView(APIView):
         if bill.owner_id != request.user:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+        if bill.attachment is not None:
+            return Response("Bill already exists, please delete it first", status=status.HTTP_400_BAD_REQUEST)
+
         bill_file = BillFile()
 
         file_serializer = FileSerializer(bill_file, data=request.data)
         if file_serializer.is_valid():
-          file = file_serializer.save()
+            file = file_serializer.save()
+            file.size = size
+            file.file_name = request.data['url'].name
+            file.save()
 
-          bill.attachment = file
-          bill.save()
-          return Response(file_serializer.data, status=status.HTTP_201_CREATED)
+            data = load_bill_file_data(file)
+            bill.attachment = file
+            bill.save()
+            return Response(data, status=status.HTTP_201_CREATED)
         else:
-          return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @authentication_classes([BasicAuthentication, ])
     @permission_classes((IsAuthenticated,))
@@ -211,12 +237,18 @@ class FileView(APIView):
         try:
             pdb.set_trace()
             bill = Bills.objects.get(id=kwargs['id'])
+            bill_file = BillFile.objects.get(id=kwargs['bill_file_id'])
 
             if bill.owner_id != request.user:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-
+            os.remove(os.path.join(settings.MEDIA_ROOT, bill_file.file_name))
             BillFile.objects.filter(id=kwargs['bill_file_id']).delete()
+
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         except Bills.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except BillFile.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
