@@ -4,16 +4,25 @@ import re
 import pdb
 
 
-class BillSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Bills
-        fields = ['id', 'created_ts', 'updated_ts', 'owner_id', 'vendor','bill_date', 'due_date','amount_due', 'categories', 'paymentStatus', 'attachment']
-
-
 class BillFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = BillFile
         fields = ['file_name', 'id', 'url', 'upload_date']
+
+    def to_representation(self, instance):
+        representation = super(BillFileSerializer, self).to_representation(instance)
+
+        full_path = instance.url
+        representation['url'] = full_path.name
+        return representation
+
+
+class BillSerializer(serializers.ModelSerializer):
+    attachment = BillFileSerializer()
+
+    class Meta:
+        model = Bills
+        fields = ['id', 'created_ts', 'updated_ts', 'owner_id', 'vendor','bill_date', 'due_date','amount_due', 'categories', 'paymentStatus', 'attachment']
 
 
 class CreateBillSerializer(serializers.ModelSerializer):
@@ -61,6 +70,11 @@ class BillUpdateSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+# class BillAttachmentSerializer(serializers.ModelSerializer):
+#     model =
+#
 
 
 class FileSerializer(serializers.ModelSerializer):

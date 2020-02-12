@@ -50,6 +50,7 @@ def load_bill_data_for_user(bill):
 
 
 def load_bill_file_data(bill_file):
+    #pdb.set_trace()
     data = {}
     data["file_name"] = bill_file.file_name
     data["id"] = bill_file.id
@@ -76,20 +77,26 @@ def manage_user_bill_by_id(request, id):
         print("get")
         serializer = BillSerializer(bill)
 
-        bill_file = bill.attachment
-        attachment = {
-            "file_name": bill_file.file_name,
-            "id": bill_file.id,
-            "url": str(bill_file.url.url),
-            "upload_date": bill_file.upload_date,
-        }
-
-        json_response = serializer.data
-        json_response["attachment"] = attachment
-        return Response(json_response)
+        # bill_file = bill.attachment
+        # attachment = {
+        #     "file_name": bill_file.file_name,
+        #     "id": bill_file.id,
+        #     "url": str(bill_file.url.url),
+        #     "upload_date": bill_file.upload_date,
+        # }
+        #
+        # json_response = serializer.data
+        # json_response["attachment"] = attachment
+        return Response(serializer.data)
 
     if request.method == 'DELETE':
         print("delete")
+        try:
+            os.remove(os.path.join(settings.MEDIA_ROOT, bill.attachment.url.name.split('/')[2]))
+
+        except:
+            return Response("bad data in db", status=status.HTTP_400_BAD_REQUEST)
+
         Bills.objects.filter(id=id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -147,6 +154,7 @@ def get_bills_view(request):
         try:
 
             bills = Bills.objects.all().filter(owner_id=user.id)
+
             if not bills:
                 return Response(status=status.HTTP_404_NOT_FOUND)
         except Bills.DoesNotExist:
@@ -222,11 +230,15 @@ class FileView(APIView):
         except Bills.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+        except BillFile.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
         if bill.owner_id != request.user:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        serializer = BillFileSerializer(bill_file)
-        return Response(serializer.data)
+        #serializer = BillFileSerializer(bill_file)
+        data = load_bill_file_data(bill_file)
+        return Response(data)
 
     @authentication_classes([BasicAuthentication, ])
     @permission_classes((IsAuthenticated,))
