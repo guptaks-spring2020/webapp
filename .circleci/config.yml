@@ -47,6 +47,12 @@ jobs:
             pip install bcrypt==3.1.7
 
       - run:
+          name: Install django-file-md5
+          command: |
+            . env/bin/activate
+            pip install django-file-md5
+
+      - run:
           name: Running tests
           command: |
             . env/bin/activate
@@ -98,6 +104,12 @@ jobs:
           command: |
             . env/bin/activate
             pip install bcrypt==3.1.7
+
+      - run:
+          name: Install django-file-md5
+          command: |
+            . env/bin/activate
+            pip install django-file-md5
 
       - run:
           name: Running tests
