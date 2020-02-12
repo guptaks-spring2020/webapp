@@ -2,6 +2,7 @@ import os
 
 from django.db.models import Q
 from django.shortcuts import render
+from django_file_md5 import calculate_md5
 from rest_framework import status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -15,7 +16,7 @@ from rest_framework.views import APIView
 from bills.models import Bills, BillFile
 from account.models import UserAccount
 from bills.api.serializers import CreateBillSerializer, BillSerializer, BillUpdateSerializer, FileSerializer, BillFileSerializer
-
+import hashlib
 
 import pdb
 
@@ -44,6 +45,7 @@ def load_bill_data_for_user(bill):
     data["amount_due"] = bill.amount_due
     data["categories"] = bill.categories
     data["paymentStatus"] = bill.paymentStatus
+    data["attachment"] = bill.attachment
     return data
 
 
@@ -51,7 +53,7 @@ def load_bill_file_data(bill_file):
     data = {}
     data["file_name"] = bill_file.file_name
     data["id"] = bill_file.id
-    data["url"] = str(bill_file.url.url)
+    data["url"] = str(bill_file.url)
     data["upload_date"] = bill_file.upload_date
     return data
 
@@ -73,7 +75,18 @@ def manage_user_bill_by_id(request, id):
     if request.method == 'GET':
         print("get")
         serializer = BillSerializer(bill)
-        return Response(serializer.data)
+
+        bill_file = bill.attachment
+        attachment = {
+            "file_name": bill_file.file_name,
+            "id": bill_file.id,
+            "url": str(bill_file.url.url),
+            "upload_date": bill_file.upload_date,
+        }
+
+        json_response = serializer.data
+        json_response["attachment"] = attachment
+        return Response(json_response)
 
     if request.method == 'DELETE':
         print("delete")
@@ -143,25 +156,8 @@ def get_bills_view(request):
         return Response(serializer.data)
 
 
-# @api_view(['POST', ])
-# @authentication_classes([BasicAuthentication, ])
-# @permission_classes((IsAuthenticated,))
-# def upload_bill(request):
-#
-#     try:
-#         bill = Bills.objects.get(id=id)
-#
-#
-#     except Bills.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-#
-#     if bill.owner_id != request.user:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-#
-#     bill_file = BillFile(id=bill)
-
 def check_file_type(value):
-    pdb.set_trace()
+
     arr = ['pdf', 'png', 'jpg', 'jpeg']
 
     if not any(c in value for c in arr):
@@ -176,11 +172,10 @@ class FileView(APIView):
     def post(self, request, *args, **kwargs):
 
         try:
-            pdb.set_trace()
-            # request.data['url'].content_type
-            # 'application/pdf'
+
             value = check_file_type(request.data['url'].content_type)
             size = request.data['url'].size
+            md5_hash = str(calculate_md5(request.data['url']))
 
             if value == "invalid":
                 return Response("Allowed file types pdf, png, jpg or jpeg", status=status.HTTP_400_BAD_REQUEST)
@@ -202,7 +197,10 @@ class FileView(APIView):
         if file_serializer.is_valid():
             file = file_serializer.save()
             file.size = size
+            file.url = file.url.url
             file.file_name = request.data['url'].name
+            file.md5_hash = md5_hash
+
             file.save()
 
             data = load_bill_file_data(file)
@@ -217,7 +215,7 @@ class FileView(APIView):
     def get(self, request, *args, **kwargs):
 
         try:
-            pdb.set_trace()
+
             bill = Bills.objects.get(id=kwargs['id'])
             bill_file = BillFile.objects.get(id=kwargs['bill_file_id'])
 
@@ -235,13 +233,13 @@ class FileView(APIView):
     def delete(self, request, *args, **kwargs):
 
         try:
-            pdb.set_trace()
+
             bill = Bills.objects.get(id=kwargs['id'])
             bill_file = BillFile.objects.get(id=kwargs['bill_file_id'])
 
             if bill.owner_id != request.user:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-            os.remove(os.path.join(settings.MEDIA_ROOT, bill_file.file_name))
+            os.remove(os.path.join(settings.MEDIA_ROOT, bill_file.url.name.split('/')[2]))
             BillFile.objects.filter(id=kwargs['bill_file_id']).delete()
 
             return Response(status=status.HTTP_204_NO_CONTENT)

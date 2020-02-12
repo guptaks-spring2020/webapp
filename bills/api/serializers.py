@@ -7,7 +7,7 @@ import pdb
 class BillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bills
-        fields = ['id', 'created_ts', 'updated_ts', 'owner_id', 'vendor','bill_date', 'due_date','amount_due', 'categories', 'paymentStatus']
+        fields = ['id', 'created_ts', 'updated_ts', 'owner_id', 'vendor','bill_date', 'due_date','amount_due', 'categories', 'paymentStatus', 'attachment']
 
 
 class BillFileSerializer(serializers.ModelSerializer):
