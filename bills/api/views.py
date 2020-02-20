@@ -92,7 +92,10 @@ def manage_user_bill_by_id(request, id):
     if request.method == 'DELETE':
         print("delete")
         try:
+
+            bill_file = bill.attachment
             os.remove(os.path.join(settings.MEDIA_ROOT, bill.attachment.url.name.split('/')[2]))
+            BillFile.objects.filter(id=bill_file.id).delete()
 
         except:
             return Response("bad data in db", status=status.HTTP_400_BAD_REQUEST)
@@ -245,17 +248,19 @@ class FileView(APIView):
     def delete(self, request, *args, **kwargs):
 
         try:
-
+            pdb.set_trace()
             bill = Bills.objects.get(id=kwargs['id'])
             bill_file = BillFile.objects.get(id=kwargs['bill_file_id'])
 
             if bill.owner_id != request.user:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-            os.remove(os.path.join(settings.MEDIA_ROOT, bill_file.url.name.split('/')[2]))
             BillFile.objects.filter(id=kwargs['bill_file_id']).delete()
+            os.remove(os.path.join(settings.MEDIA_ROOT, bill_file.url.name.split('/')[2]))
 
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response("File not found or has been manually deleted", status=status.HTTP_400_BAD_REQUEST)
 
+        except FileNotFoundError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         except Bills.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
