@@ -6,9 +6,11 @@ jobs:
         environment:
           PIPENV_VENV_IN_PROJECT: true
           DATABASE_URL: postgresql://root@localhost/circle_test?sslmode=disable
-      - image: circleci/postgres:9.6-alpine
+      - image: circleci/postgres:9.6.2-alpine
         environment:
           POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: myproject
 
     steps:
       - checkout
@@ -64,10 +66,11 @@ jobs:
         environment:
           PIPENV_VENV_IN_PROJECT: true
           DATABASE_URL: postgresql://root@localhost/circle_test?sslmode=disable
-      - image: circleci/postgres
+      - image: circleci/postgres:9.6.2-alpine
         environment:
-          POSTGRES_USER: myprojectuser
-          POSTGRES_DB: circle_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: myproject
 
     steps:
       - checkout
