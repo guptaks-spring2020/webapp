@@ -1,5 +1,5 @@
 import os
-
+import boto3
 from django.db.models import Q
 from django.shortcuts import render
 from django_file_md5 import calculate_md5
@@ -54,7 +54,11 @@ def load_bill_file_data(bill_file):
     data = {}
     data["file_name"] = bill_file.file_name
     data["id"] = bill_file.id
-    data["url"] = str(bill_file.url)
+    if 'DB_HOST' in os.environ:
+        data["url"] = str(bill_file.url.url.split('?')[0])
+    else:
+        data["url"] = str(bill_file.url)
+
     data["upload_date"] = bill_file.upload_date
     return data
 
@@ -91,10 +95,18 @@ def manage_user_bill_by_id(request, id):
 
     if request.method == 'DELETE':
         print("delete")
+        #pdb.set_trace()
         try:
 
             bill_file = bill.attachment
-            os.remove(os.path.join(settings.MEDIA_ROOT, bill.attachment.url.name.split('/')[2]))
+            if 'DB_HOST' in os.environ:
+                bill_file.url.delete(save=False)
+            else:
+                try:
+                    os.remove(os.path.join(settings.MEDIA_ROOT, bill_file.url.name.split('/')[1]))
+                except FileNotFoundError:
+                    return Response("File not found or has been manually deleted", status=status.HTTP_400_BAD_REQUEST)
+
             BillFile.objects.filter(id=bill_file.id).delete()
 
         except:
@@ -183,11 +195,11 @@ class FileView(APIView):
     def post(self, request, *args, **kwargs):
 
         try:
-
+            #pdb.set_trace()
             value = check_file_type(request.data['url'].content_type)
             size = request.data['url'].size
             md5_hash = str(calculate_md5(request.data['url']))
-
+            #pdb.set_trace()
             if value == "invalid":
                 return Response("Allowed file types pdf, png, jpg or jpeg", status=status.HTTP_400_BAD_REQUEST)
 
@@ -208,7 +220,6 @@ class FileView(APIView):
         if file_serializer.is_valid():
             file = file_serializer.save()
             file.size = size
-            file.url = file.url.url
             file.file_name = request.data['url'].name
             file.md5_hash = md5_hash
 
@@ -248,22 +259,27 @@ class FileView(APIView):
     def delete(self, request, *args, **kwargs):
 
         try:
-            pdb.set_trace()
+            #pdb.set_trace()
             bill = Bills.objects.get(id=kwargs['id'])
             bill_file = BillFile.objects.get(id=kwargs['bill_file_id'])
 
             if bill.owner_id != request.user:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             BillFile.objects.filter(id=kwargs['bill_file_id']).delete()
-            os.remove(os.path.join(settings.MEDIA_ROOT, bill_file.url.name.split('/')[2]))
+            if 'DB_HOST' in os.environ:
+                bill_file.url.delete(save=False)
+            else:
+                try:
+                    os.remove(os.path.join(settings.MEDIA_ROOT, bill_file.url.name.split('/')[1]))
+                except FileNotFoundError:
+                    return Response("File not found or has been manually deleted", status=status.HTTP_400_BAD_REQUEST)
 
-            return Response("File not found or has been manually deleted", status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(status=status.HTTP_204_NO_CONTENT)
         except FileNotFoundError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         except Bills.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         except BillFile.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response("File not found", status=status.HTTP_400_BAD_REQUEST)
 

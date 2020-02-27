@@ -6,11 +6,17 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 # Create your models here.
 
+def upload_location(instance, filename):
+    file_path = 'bill/{file_id}-{filename}'.format(
+        file_id=str(instance.id), filename=filename
+    )
+    return file_path
+
 
 class BillFile(models.Model):
     file_name = models.CharField(max_length=100, null=True, blank=False)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    url = models.FileField(blank=False, null=True)
+    url = models.FileField(upload_to=upload_location, blank=False, null=True)
     upload_date = models.DateTimeField(verbose_name='account created', auto_now_add=True)
     size = models.IntegerField(blank=True, null=True)
     md5_hash = models.CharField(max_length=150, null=True, blank=False)

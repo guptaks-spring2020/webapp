@@ -54,6 +54,18 @@ jobs:
             pip install django-file-md5
 
       - run:
+          name: Install boto3
+          command: |
+            . env/bin/activate
+            pip install boto3
+
+      - run:
+          name: Install django-storages
+          command: |
+            . env/bin/activate
+            pip install django-storages
+
+      - run:
           name: Running tests
           command: |
             . env/bin/activate
@@ -112,6 +124,18 @@ jobs:
           command: |
             . env/bin/activate
             pip install django-file-md5
+
+      - run:
+          name: Install boto3
+          command: |
+            . env/bin/activate
+            pip install boto3
+
+      - run:
+          name: Install django-storages
+          command: |
+            . env/bin/activate
+            pip install django-storages
 
       - run:
           name: Running tests

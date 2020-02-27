@@ -1,3 +1,5 @@
+import os
+
 from rest_framework import serializers
 from bills.models import Bills, BillFile
 import re
@@ -13,7 +15,11 @@ class BillFileSerializer(serializers.ModelSerializer):
         representation = super(BillFileSerializer, self).to_representation(instance)
 
         full_path = instance.url
-        representation['url'] = full_path.name
+        if 'DB_HOST' in os.environ:
+
+            representation['url'] = full_path.url.split('?')[0]
+        else:
+            representation['url'] = full_path.name
         return representation
 
 
