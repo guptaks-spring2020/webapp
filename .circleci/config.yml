@@ -158,7 +158,7 @@ jobs:
            name: Artifacts are being uploded to S3
            command: |
              sudo pip install awscli
-             cd codedeploy_artifact
+             cd artifacts
              aws s3 cp csye6225-web-app-${CIRCLE_BUILD_NUM}.zip s3://codedeploy.kshitizgupta.me
 
       - run:
