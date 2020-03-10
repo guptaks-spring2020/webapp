@@ -1,6 +1,6 @@
 os: linux
  files:
-   - source: /
+     source: /
      destination: /home/ubuntu
 
  hooks:
