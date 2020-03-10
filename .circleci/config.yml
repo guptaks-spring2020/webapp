@@ -166,7 +166,7 @@ jobs:
            command: |
              aws configure list
              aws configure set region us-east-1
-             aws deploy create-deployment --application-name webapp --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name csye6225-webapp-deployment --s3-location bucket=codedeploy.kshitizgupta.me,bundleType=zip,key=csye6225-web-app-${CIRCLE_BUILD_NUM}.zip
+             aws deploy create-deployment --application-name webapp --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name webapp --s3-location bucket=codedeploy.kshitizgupta.me,bundleType=zip,key=csye6225-web-app-${CIRCLE_BUILD_NUM}.zip
 
 #      - save_cache:
 #          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
