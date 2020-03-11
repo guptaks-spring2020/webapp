@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-cd /home/ubuntu/webapp/
+cd /home/ubuntu/
 python3 manage.py runserver 0.0.0.0:8000
