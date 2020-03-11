@@ -148,8 +148,9 @@ jobs:
            name: Zip Artifact
            command: |
              echo "testing the current build number: ${CIRCLE_BUILD_NUM}"
+             cd ..
              mkdir -p artifacts
-             zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip myaccountapp *.yml
+             zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip webapp *.yml
              mv csye6225-web-app-${CIRCLE_BUILD_NUM}.zip artifacts/
              cd artifacts
              cd ..
