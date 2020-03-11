@@ -149,7 +149,7 @@ jobs:
            command: |
              echo "testing the current build number: ${CIRCLE_BUILD_NUM}"
              pwd
-             mkdir -r artifacts
+             mkdir -p artifacts
              zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip account bills media scripts templates webapp *.yml manage.py
              mv csye6225-web-app-${CIRCLE_BUILD_NUM}.zip artifacts/
 
