@@ -7,10 +7,10 @@ files:
 
 hooks:
  AfterInstall:
-  - location: /scripts/postinstall.sh
+  - location: scripts/postinstall.sh
     timeout: 6000
     runas: ubuntu
  ApplicationStart:
-  - location: /scripts/startapp.sh
+  - location: scripts/startapp.sh
     timeout: 6000
     runas: ubuntu
