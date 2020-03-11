@@ -1,14 +1,14 @@
 os: linux
- files:
-     source: /
-     destination: /home/ubuntu
+files:
+   - source: /
+   destination: /home/ubuntu
 
- hooks:
-   AfterInstall:
-    - location: /scripts/postinstall.sh
-      timeout: 6000
-      runas: ubuntu
-   ApplicationStart:
-    - location: /scripts/startapp.sh
-      timeout: 6000
-      runas: ubuntu
+hooks:
+ AfterInstall:
+  - location: /scripts/postinstall.sh
+    timeout: 6000
+    runas: ubuntu
+ ApplicationStart:
+  - location: /scripts/startapp.sh
+    timeout: 6000
+    runas: ubuntu
