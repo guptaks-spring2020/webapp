@@ -1,7 +1,8 @@
 os: linux
+
 files:
   - source: /
-   destination: /home/ubuntu
+    destination: /home/ubuntu
 
 hooks:
  AfterInstall:
