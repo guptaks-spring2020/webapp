@@ -148,12 +148,10 @@ jobs:
            name: Zip Artifact
            command: |
              echo "testing the current build number: ${CIRCLE_BUILD_NUM}"
-             cd ..
-             mkdir -p artifacts
-             zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip webapp
+             pwd
+             mkdir -r artifacts
+             zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip account bills media scripts templates webapp *.yml manage.py
              mv csye6225-web-app-${CIRCLE_BUILD_NUM}.zip artifacts/
-             cd artifacts
-             cd ..
 
       - run:
            name: Artifacts are being uploded to S3
