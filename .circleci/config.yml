@@ -71,6 +71,30 @@ jobs:
             . env/bin/activate
             ls -a
             python3 manage.py test account.tests
+             
+      - run:
+          name: Zip Artifact
+          command: |
+            echo "testing the current build number: ${CIRCLE_BUILD_NUM}"
+            pwd
+            mkdir -p artifacts
+            zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip account bills media scripts templates webapp *.yml manage.py
+            mv csye6225-web-app-${CIRCLE_BUILD_NUM}.zip artifacts/
+
+      - run:
+          name: Artifacts are being uploded to S3
+          command: |
+            sudo pip install awscli
+            cd artifacts
+            aws s3 cp csye6225-web-app-${CIRCLE_BUILD_NUM}.zip s3://codedeploy.kshitizgupta.me
+
+      - run:
+          name: Call codeploy to deploy application
+          command: |
+            aws configure list
+            aws configure set region us-east-1
+            aws deploy create-deployment --application-name webapp --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name webapp --s3-location bucket=codedeploy.kshitizgupta.me,bundleType=zip,key=csye6225-web-app-${CIRCLE_BUILD_NUM}.zip
+
 
   pr_check:
     docker:
@@ -144,28 +168,6 @@ jobs:
             ls -a
             python3 manage.py test account.tests
 
-      - run:
-           name: Zip Artifact
-           command: |
-             echo "testing the current build number: ${CIRCLE_BUILD_NUM}"
-             pwd
-             mkdir -p artifacts
-             zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip account bills media scripts templates webapp *.yml manage.py
-             mv csye6225-web-app-${CIRCLE_BUILD_NUM}.zip artifacts/
-
-      - run:
-           name: Artifacts are being uploded to S3
-           command: |
-             sudo pip install awscli
-             cd artifacts
-             aws s3 cp csye6225-web-app-${CIRCLE_BUILD_NUM}.zip s3://codedeploy.kshitizgupta.me
-
-      - run:
-           name: Call codeploy to deploy application
-           command: |
-             aws configure list
-             aws configure set region us-east-1
-             aws deploy create-deployment --application-name webapp --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name webapp --s3-location bucket=codedeploy.kshitizgupta.me,bundleType=zip,key=csye6225-web-app-${CIRCLE_BUILD_NUM}.zip
 
 #      - save_cache:
 #          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
