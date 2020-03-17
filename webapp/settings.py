@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+STATSD_HOST = 'localhost'
+STATSD_PORT = 8125
+STATSD_PREFIX = 'statsd'
+STATSD_MAXUDPSIZE = 512
 
 # Application definition
 
@@ -35,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django_statsd',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
@@ -53,6 +58,7 @@ PASSWORD_HASHERS = [
 ]
 
 MIDDLEWARE = [
+    'django_statsd.middleware.StatsdMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -60,6 +66,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_statsd.middleware.StatsdMiddlewareTimer',
 ]
 
 ROOT_URLCONF = 'webapp.urls'

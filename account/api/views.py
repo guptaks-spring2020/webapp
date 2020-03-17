@@ -5,11 +5,13 @@ from rest_framework.permissions import IsAuthenticated
 from account.models import UserAccount
 from account.api.serializers import RegistrationSerializer, UserUpdateSerializer, UserSerializer
 from rest_framework import status
+from django_statsd.clients import statsd
 import pdb
 
 
 @api_view(['POST'])
 def registration_view(request):
+    statsd.incr('api.register.user')
     if request.method == 'POST':
         serializer = RegistrationSerializer(data=request.data)
         data = {}
@@ -35,6 +37,7 @@ def update_user_view(request):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'PUT':
+        statsd.incr('api.update.user')
         serializer = UserUpdateSerializer(account, data=request.data)
         data = {}
         if serializer.is_valid():
@@ -43,6 +46,7 @@ def update_user_view(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     if request.method == 'GET':
+        statsd.incr('api.get.user')
         print(account)
         serializer = UserSerializer(account)
         return Response(serializer.data)
