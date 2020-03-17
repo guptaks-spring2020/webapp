@@ -171,34 +171,34 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
-LOGGING_CONFIG = None
-logging.config.dictConfig({
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'standard': {
-            'format': '{asctime} {levelname} {module} {process:d} {thread:d} {message}',
-            'style': '{',
+if 'DB_HOST' in os.environ:
+    LOGGING_CONFIG = None
+    logging.config.dictConfig({
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'standard': {
+                'format': '{asctime} {levelname} {module} {process:d} {thread:d} {message}',
+                'style': '{',
+            },
         },
-    },
-    'filters': {
-        'require_debug_true': {
-             '()': 'django.utils.log.RequireDebugTrue',
+        'filters': {
+            'require_debug_true': {
+                 '()': 'django.utils.log.RequireDebugTrue',
+            },
         },
-    },
-    'handlers': {
-        'default': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename' : '/opt/aws/amazon-cloudwatch-agent/logs/csye6225.log',
-            'formatter': 'standard'
+        'handlers': {
+            'default': {
+                'level': 'DEBUG',
+                'class': 'logging.handlers.RotatingFileHandler',
+                'filename' : '/opt/aws/amazon-cloudwatch-agent/logs/csye6225.log',
+                'formatter': 'standard'
+            },
         },
-    },
-    'loggers': {
-        '': {
-            'handlers': ['default'],
-            'propagate': True,
+        'loggers': {
+            '': {
+                'handlers': ['default'],
+                'propagate': True,
+            }
         }
-    }
-})
+    })
