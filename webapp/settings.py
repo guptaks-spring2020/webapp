@@ -191,7 +191,7 @@ if 'DB_HOST' in os.environ:
             'default': {
                 'level': 'DEBUG',
                 'class': 'logging.handlers.RotatingFileHandler',
-                'filename' : '/opt/aws/amazon-cloudwatch-agent/logs/csye6225.log',
+                'filename': '/opt/aws/amazon-cloudwatch-agent/logs/csye6225.log',
                 'formatter': 'standard'
             },
         },
