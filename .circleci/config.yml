@@ -149,7 +149,7 @@ jobs:
           name: Install django-statsd
           command: |
             . env/bin/activate
-            django-statsd
+            pip install django-statsd
 
       - run:
           name: Running tests
