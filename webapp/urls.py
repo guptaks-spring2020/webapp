@@ -20,10 +20,10 @@ from bills.api.views import manage_user_bill_by_id, get_bills_view, create_bill_
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('v1/', include('account.api.urls', 'account_api')),
-    path('v1/bills', get_bills_view, name="get_bills" ),
-    path('v1/bill/<uuid:id>', manage_user_bill_by_id, name="bill_id_operations"),
-    path('v1/bill/', create_bill_view, name="post_bill"),
-    path('v1/bill/<uuid:id>/file', FileView.as_view()),
-    path('v1/bill/<uuid:id>/file/<uuid:bill_file_id>', FileView.as_view())
+    path('v2/', include('account.api.urls', 'account_api')),
+    path('v2/bills', get_bills_view, name="get_bills" ),
+    path('v2/bill/<uuid:id>', manage_user_bill_by_id, name="bill_id_operations"),
+    path('v2/bill/', create_bill_view, name="post_bill"),
+    path('v2/bill/<uuid:id>/file', FileView.as_view()),
+    path('v2/bill/<uuid:id>/file/<uuid:bill_file_id>', FileView.as_view())
 ]
