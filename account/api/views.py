@@ -11,7 +11,7 @@ import pdb
 
 @api_view(['POST'])
 def registration_view(request):
-    statsd.incr('api.register.user')
+    statsd.increment('api.register.user')
     if request.method == 'POST':
         serializer = RegistrationSerializer(data=request.data)
         data = {}
