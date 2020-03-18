@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 # Create your models here.
 
+
 def upload_location(instance, filename):
     file_path = 'bill/{file_id}-{filename}'.format(
         file_id=str(instance.id), filename=filename
