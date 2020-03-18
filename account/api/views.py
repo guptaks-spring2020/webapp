@@ -36,7 +36,7 @@ def registration_view(request):
             api_timer.stop()
             return Response(data, status=status.HTTP_201_CREATED)
         logger.error("Something bad has happened: %s", serializer.errors)
-        statsd.stop('api.register.user.time.taken')
+        api_timer.stop('api.register.user.time.taken')
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
