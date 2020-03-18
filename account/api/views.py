@@ -1,4 +1,5 @@
-import statsd
+#import statsd
+import django_statsd
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
@@ -12,15 +13,14 @@ import pdb
 logger = logging.getLogger(__name__)
 logger.setLevel("INFO")
 
+
 @api_view(['POST'])
 def registration_view(request):
 
     if request.method == 'POST':
-        statsd.increment('api.register.user.count')
+        django_statsd.incr('api.register.user.count')
 
-        api_timer = statsd.timer.Timer('api.register.user.time.taken')
-        api_timer.start()
-        # Do something fun.
+        django_statsd.start('api.register.user.time.taken')
 
         serializer = RegistrationSerializer(data=request.data)
         data = {}
@@ -33,10 +33,10 @@ def registration_view(request):
             data['account_created'] = account.account_created
             data['account_updated'] = account.account_updated
             logger.info("User has been created with the id: %s", account.id)
-            api_timer.stop()
+            django_statsd.stop('api.register.user.time.taken')
             return Response(data, status=status.HTTP_201_CREATED)
         logger.error("Something bad has happened: %s", serializer.errors)
-        api_timer.stop('api.register.user.time.taken')
+        django_statsd.stop('api.register.user.time.taken')
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -44,7 +44,7 @@ def registration_view(request):
 @authentication_classes([BasicAuthentication, ])
 @permission_classes((IsAuthenticated,))
 def update_user_view(request):
-    api_timer = statsd.timer.Timer()
+
 
     try:
         account = UserAccount.objects.get(email_address=request.user)
@@ -53,24 +53,24 @@ def update_user_view(request):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'PUT':
-        statsd.start('api.update.user.time.taken')
-        statsd.increment('api.update.user')
+        django_statsd.start('api.update.user.time.taken')
+        django_statsd.incr('api.update.user')
         serializer = UserUpdateSerializer(account, data=request.data)
         data = {}
         if serializer.is_valid():
             serializer.save()
-            api_timer.stop('api.update.user.time.taken')
+            django_statsd.stop('api.update.user.time.taken')
             logger.info("User has been updated with the id: %s", account.id)
             return Response(status=status.HTTP_204_NO_CONTENT)
-        statsd.stop('api.update.user.time.taken')
+        django_statsd.stop('api.update.user.time.taken')
         logger.error("Something bad has happened: %s", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     if request.method == 'GET':
-        statsd.increment('api.get.user')
-        statsd.start('api.get.user.time.taken')
+        django_statsd.incr('api.get.user')
+        django_statsd.start('api.get.user.time.taken')
         print(account)
         serializer = UserSerializer(account)
         logger.info("User has been retrieved with the id: %s", account.id)
-        statsd.stop('api.get.user.time.taken')
+        django_statsd.stop('api.get.user.time.taken')
         return Response(serializer.data)
