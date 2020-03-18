@@ -18,9 +18,9 @@ logger.setLevel("INFO")
 def registration_view(request):
 
     if request.method == 'POST':
-        django_statsd.incr('api.register.user.count')
+        django_statsd.incr('test.api.registration.user.count')
 
-        django_statsd.start('api.register.user.time.taken')
+        django_statsd.start('test.api.registration.user.time.taken')
 
         serializer = RegistrationSerializer(data=request.data)
         data = {}
