@@ -33,10 +33,10 @@ def registration_view(request):
             data['account_created'] = account.account_created
             data['account_updated'] = account.account_updated
             logger.info("User has been created with the id: %s", account.id)
-            django_statsd.stop('api.register.user.time.taken')
+            django_statsd.stop('test.api.registration.user.time.taken')
             return Response(data, status=status.HTTP_201_CREATED)
         logger.error("Something bad has happened: %s", serializer.errors)
-        django_statsd.stop('api.register.user.time.taken')
+        django_statsd.stop('test.api.registration.user.time.taken')
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
