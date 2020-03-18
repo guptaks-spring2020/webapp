@@ -18,7 +18,8 @@ def registration_view(request):
     if request.method == 'POST':
         statsd.increment('api.register.user.count')
 
-        statsd.start('api.register.user.time.taken')
+        api_timer = statsd.timer.Timer('api.register.user.time.taken')
+        api_timer.start()
         # Do something fun.
 
         serializer = RegistrationSerializer(data=request.data)
@@ -32,7 +33,7 @@ def registration_view(request):
             data['account_created'] = account.account_created
             data['account_updated'] = account.account_updated
             logger.info("User has been created with the id: %s", account.id)
-            statsd.stop()
+            api_timer.stop()
             return Response(data, status=status.HTTP_201_CREATED)
         logger.error("Something bad has happened: %s", serializer.errors)
         statsd.stop('api.register.user.time.taken')
