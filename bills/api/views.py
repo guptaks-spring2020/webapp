@@ -230,10 +230,11 @@ class FileView(APIView):
     @authentication_classes([BasicAuthentication, ])
     @permission_classes((IsAuthenticated,))
     def post(self, request, *args, **kwargs):
+        #pdb.set_trace()
         django_statsd.incr('api.upload.bill.file.for.user')
         django_statsd.start('api.upload.bill.file.time.taken')
         try:
-            pdb.set_trace()
+            #pdb.set_trace()
             value = check_file_type(request.data['url'].content_type)
             size = request.data['url'].size
             md5_hash = str(calculate_md5(request.data['url']))
