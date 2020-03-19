@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  pr_check:
     docker:
       - image: circleci/python:3.7.6
         environment:
@@ -104,7 +104,7 @@ jobs:
 
 
 
-  pr_check:
+  build:
     docker:
       - image: circleci/python:3.7.6
         environment:
