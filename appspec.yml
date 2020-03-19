@@ -6,6 +6,10 @@ files:
     destination: /home/ubuntu
 
 hooks:
+ BeforeInstall:
+  - location: scripts/cleanup_server.sh
+    timeout: 600
+    runas: root
  AfterInstall:
   - location: scripts/postinstall.sh
     timeout: 6000
