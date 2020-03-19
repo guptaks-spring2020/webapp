@@ -266,7 +266,7 @@ class FileView(APIView):
         if file_serializer.is_valid():
             django_statsd.start('api.post.bill.file.db.time.taken')
             file = file_serializer.save()
-            django_statsd.post('api.post.bill.file.db.time.taken')
+            django_statsd.stop('api.post.bill.file.db.time.taken')
             file.size = size
             file.file_name = request.data['url'].name
             file.md5_hash = md5_hash
