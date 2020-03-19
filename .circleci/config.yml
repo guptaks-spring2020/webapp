@@ -124,13 +124,13 @@ workflows:
   version: 2
   pr-check:
     jobs:
-      - pr_check
-#          filters:
-#            branches:
-#              only: /^pull\/.*$/
+      - pr_check:
+          filters:
+            branches:
+              only: /^pull\/.*$/
   build_deploy:
     jobs:
-      - build
-#          filters:
-#            branches:
-#              only: master
+      - build:
+          filters:
+            branches:
+              only: master
