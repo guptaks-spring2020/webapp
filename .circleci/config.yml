@@ -103,6 +103,7 @@ jobs:
 
 
 
+
   pr_check:
     docker:
       - image: circleci/python:3.7.6
@@ -180,6 +181,7 @@ jobs:
             . env/bin/activate
             ls -a
             python3 manage.py test account.tests
+
 
 
 #      - save_cache:
