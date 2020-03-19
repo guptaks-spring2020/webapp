@@ -233,7 +233,7 @@ class FileView(APIView):
         django_statsd.incr('api.upload.bill.file.for.user')
         django_statsd.start('api.upload.bill.file.time.taken')
         try:
-            #pdb.set_trace()
+            pdb.set_trace()
             value = check_file_type(request.data['url'].content_type)
             size = request.data['url'].size
             md5_hash = str(calculate_md5(request.data['url']))
@@ -247,7 +247,7 @@ class FileView(APIView):
 
         except Bills.DoesNotExist:
             django_statsd.stop('api.upload.bill.file.time.taken')
-            logger.error("bill with the id: %s does not exists", bill.id)
+            logger.error("bill with the id: %s does not exists",kwargs['id'])
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         if bill.owner_id != request.user:
@@ -257,7 +257,7 @@ class FileView(APIView):
 
         if bill.attachment is not None:
             django_statsd.stop('api.upload.bill.file.time.taken')
-            logger.error("Bill  %s already exists, please delete it first", bill.id)
+            logger.error("Bill  %s already exists, please delete it first", kwargs['id'])
             return Response("Bill already exists, please delete it first", status=status.HTTP_400_BAD_REQUEST)
 
         bill_file = BillFile()
