@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  pr_check:
+  build:
     docker:
       - image: circleci/python:3.7.6
         environment:
@@ -66,12 +66,6 @@ jobs:
             pip install django-storages
 
       - run:
-          name: Install django-statsd
-          command: |
-            . env/bin/activate
-            pip install django-statsd
-
-      - run:
           name: Running tests
           command: |
             . env/bin/activate
@@ -102,9 +96,7 @@ jobs:
             aws deploy create-deployment --application-name ${APP_NAME} --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name ${DEPLOYMENT_GROUP_NAME} --s3-location bucket=${BUCKET_NAME},bundleType=zip,key=csye6225-web-app-${CIRCLE_BUILD_NUM}.zip
 
 
-
-
-  build:
+  pr_check:
     docker:
       - image: circleci/python:3.7.6
         environment:
@@ -168,12 +160,6 @@ jobs:
           command: |
             . env/bin/activate
             pip install django-storages
-
-      - run:
-          name: Install django-statsd
-          command: |
-            . env/bin/activate
-            pip install django-statsd
 
       - run:
           name: Running tests
