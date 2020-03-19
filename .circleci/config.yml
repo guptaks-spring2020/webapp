@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  pr_check:
     docker:
       - image: circleci/python:3.7.6
         environment:
@@ -84,7 +84,7 @@ jobs:
             echo "testing the current build number: ${CIRCLE_BUILD_NUM}"
             pwd
             mkdir -p artifacts
-            zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip account bills media scripts templates webapp *.yml manage.py
+            zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip account bills media scripts templates webapp *.yml manage.py requirements.txt
             mv csye6225-web-app-${CIRCLE_BUILD_NUM}.zip artifacts/
 
       - run:
@@ -102,7 +102,9 @@ jobs:
             aws deploy create-deployment --application-name ${APP_NAME} --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name ${DEPLOYMENT_GROUP_NAME} --s3-location bucket=${BUCKET_NAME},bundleType=zip,key=csye6225-web-app-${CIRCLE_BUILD_NUM}.zip
 
 
-  pr_check:
+
+
+  build:
     docker:
       - image: circleci/python:3.7.6
         environment:
