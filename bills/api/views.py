@@ -253,7 +253,7 @@ class FileView(APIView):
 
         if bill.owner_id != request.user:
             django_statsd.stop('api.upload.bill.file.time.taken')
-            logger.error("bill for the user id: %s does not exists", bill.owner_id)
+            logger.error("bill for the user : %s does not exists", request.user)
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         if bill.attachment is not None:
@@ -351,15 +351,15 @@ class FileView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except FileNotFoundError:
             django_statsd.stop('api.delete.uploaded.bill.file.time.taken')
-            logger.error("bill file with the id: %s does not exists",id=kwargs['bill_file_id'])
+            logger.error("bill file with the id: %s does not exists",kwargs['bill_file_id'])
             return Response(status=status.HTTP_400_BAD_REQUEST)
         except Bills.DoesNotExist:
-            logger.error("bill with the id: %s does not exists", id=kwargs['id'])
+            logger.error("bill with the id: %s does not exists", kwargs['id'])
             django_statsd.stop('api.delete.uploaded.bill.file.time.taken')
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         except BillFile.DoesNotExist:
-            logger.error("bill with the id: %s does not exists",id=kwargs['bill_file_id'])
+            logger.error("bill with the id: %s does not exists",kwargs['bill_file_id'])
             django_statsd.stop('api.delete.uploaded.bill.file.time.taken')
             return Response("File not found", status=status.HTTP_400_BAD_REQUEST)
 
