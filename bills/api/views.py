@@ -34,30 +34,30 @@ ERROR = 'error'
 DELETE_SUCCESS = 'deleted'
 UPDATE_SUCCESS = 'updated'
 CREATE_SUCCESS = 'created'
+if 'DB_HOST' in os.environ:
+    boto_sqs = boto3.resource('sqs'
+                         # region_name='us-east-1'
+                         )
 
-boto_sqs = boto3.resource('sqs',
-                      region_name='us-east-1'
-                     )
+    sqs = boto3.client('sqs'
+                       # region_name='us-east-1'
+                       )
 
-sqs = boto3.client('sqs',
-                   region_name='us-east-1'
-                   )
+    queue_url = 'https://sqs.us-east-1.amazonaws.com/' + os.environ['AWSID'] + '/' + os.environ['SQSNAME']
 
-queue_url = 'https://sqs.us-east-1.amazonaws.com/' + os.environ['AWSID'] + '/' + os.environ['SQSNAME']
+    sqs_queue = boto_sqs.get_queue_by_name(QueueName=os.environ['SQSNAME'])
 
-sqs_queue = boto_sqs.get_queue_by_name(QueueName=os.environ['SQSNAME'])
-
-sqs.set_queue_attributes(
-    QueueUrl=queue_url,
-    Attributes={'ReceiveMessageWaitTimeSeconds': '20'}
-)
+    sqs.set_queue_attributes(
+        QueueUrl=queue_url,
+        Attributes={'ReceiveMessageWaitTimeSeconds': '20'}
+    )
 
 
-#receipt_handle = message['ReceiptHandle']
+    #receipt_handle = message['ReceiptHandle']
 
-sns = boto3.client('sns',
-                   region_name='us-east-1'
-                   )
+    sns = boto3.client('sns',
+                       #region_name='us-east-1'
+                       )
 
 
 
@@ -478,6 +478,7 @@ class BillDueView(APIView):
             }
         })
         #display_time.delay()
-        publish_to_sns.delay()
+        if 'DB_HOST' in os.environ:
+            publish_to_sns.delay()
         return Response(serializer.data)
 
