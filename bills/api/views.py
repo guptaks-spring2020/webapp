@@ -23,7 +23,7 @@ from celery import shared_task
 from django.core import serializers
 
 import pdb
-
+import threading
 from webapp import settings
 
 logger = logging.getLogger(__name__)
@@ -92,6 +92,11 @@ def publish_to_sns():
         MessageStructure='json',
         Message=json.dumps({'default': json.dumps(message['MessageAttributes'])}),
     )
+
+
+def thread_function():
+    run_thread = threading.Thread(target=publish_to_sns)
+    run_thread.start()
 
 def load_bill_data_for_user(bill):
     data = {}
@@ -479,6 +484,6 @@ class BillDueView(APIView):
         })
         #display_time.delay()
         if 'DB_HOST' in os.environ:
-            publish_to_sns.delay()
+            thread_function()
         return Response(serializer.data)
 
