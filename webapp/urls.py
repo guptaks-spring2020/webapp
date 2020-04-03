@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from bills.api.views import manage_user_bill_by_id, get_bills_view, create_bill_view, FileView
+from bills.api.views import manage_user_bill_by_id, get_bills_view, create_bill_view, FileView, BillDueView
 
 
 urlpatterns = [
@@ -25,5 +25,6 @@ urlpatterns = [
     path('v1/bill/<uuid:id>', manage_user_bill_by_id, name="bill_id_operations"),
     path('v1/bill/', create_bill_view, name="post_bill"),
     path('v1/bill/<uuid:id>/file', FileView.as_view()),
-    path('v1/bill/<uuid:id>/file/<uuid:bill_file_id>', FileView.as_view())
+    path('v1/bill/<uuid:id>/file/<uuid:bill_file_id>', FileView.as_view()),
+    path('v1/bills/due/<int:days>', BillDueView.as_view())
 ]

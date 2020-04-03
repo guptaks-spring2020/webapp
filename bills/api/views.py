@@ -1,4 +1,7 @@
+import json
 import os
+
+import boto3
 import django_statsd
 from django_file_md5 import calculate_md5
 from rest_framework import status
@@ -13,7 +16,11 @@ import logging
 from bills.models import Bills, BillFile
 from account.models import UserAccount
 from bills.api.serializers import CreateBillSerializer, BillSerializer, BillUpdateSerializer, FileSerializer, BillFileSerializer
-
+from datetime import date
+from datetime import timedelta
+from datetime import datetime
+from celery import shared_task
+from django.core import serializers
 
 import pdb
 
@@ -27,12 +34,64 @@ ERROR = 'error'
 DELETE_SUCCESS = 'deleted'
 UPDATE_SUCCESS = 'updated'
 CREATE_SUCCESS = 'created'
+if 'DB_HOST' in os.environ:
+    boto_sqs = boto3.resource('sqs'
+                         # region_name='us-east-1'
+                         )
+
+    sqs = boto3.client('sqs'
+                       # region_name='us-east-1'
+                       )
+
+    queue_url = 'https://sqs.us-east-1.amazonaws.com/' + os.environ['AWSID'] + '/' + os.environ['SQSNAME']
+
+    sqs_queue = boto_sqs.get_queue_by_name(QueueName=os.environ['SQSNAME'])
+
+    sqs.set_queue_attributes(
+        QueueUrl=queue_url,
+        Attributes={'ReceiveMessageWaitTimeSeconds': '20'}
+    )
+
+
+    #receipt_handle = message['ReceiptHandle']
+
+    sns = boto3.client('sns',
+                       #region_name='us-east-1'
+                       )
+
+
 
 
 def handle404(request, exception):
 
     raise Http404("This url does not exist")
 
+
+@shared_task()
+def publish_to_sns():
+
+    print("inside sns function")
+    response = sqs.receive_message(
+        QueueUrl=queue_url,
+        AttributeNames=[
+            'SentTimestamp'
+        ],
+        MaxNumberOfMessages=1,
+        MessageAttributeNames=[
+            'All'
+        ],
+        VisibilityTimeout=0,
+        WaitTimeSeconds=0
+    )
+
+    message = response['Messages'][0]
+    print(message)
+    sns.publish(
+        TopicArn='arn:aws:sns:us-east-1:' + os.environ['AWSID'] + ':' + os.environ['SNSNAME'],
+        #TargetArn='arn:aws:lambda:us-east-1:696709895707:function:EmailLambdaFunction',
+        MessageStructure='json',
+        Message=json.dumps({'default': json.dumps(message['MessageAttributes'])}),
+    )
 
 def load_bill_data_for_user(bill):
     data = {}
@@ -203,11 +262,10 @@ def get_bills_view(request):
 
             if not bills:
                 django_statsd.stop('api.get.bills.time.taken')
-                django_statsd.start('api.get.bills.db.time.taken')
-                logger.error("bills for the user id: %s has been created", user.id)
+                logger.error("bills for the user id: %s does not exists", user.id)
                 return Response(status=status.HTTP_404_NOT_FOUND)
         except Bills.DoesNotExist:
-            logger.error("bills for the user id: %s has been created", user.id)
+            logger.error("bills for the user id: %s does not exists", user.id)
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         serializer = BillSerializer(bills, many=True)
@@ -362,4 +420,65 @@ class FileView(APIView):
             logger.error("bill with the id: %s does not exists",kwargs['bill_file_id'])
             django_statsd.stop('api.delete.uploaded.bill.file.time.taken')
             return Response("File not found", status=status.HTTP_400_BAD_REQUEST)
+
+
+class BillDueView(APIView):
+
+    #@shared_task
+    @authentication_classes([BasicAuthentication, ])
+    @permission_classes((IsAuthenticated,))
+    def get(self, request, *args, **kwargs):
+        # import pdb
+        # pdb.set_trace()
+        #django_statsd.start('api.get.due.bills.time.taken')
+        days = kwargs['days']
+        due_date = datetime.now().date() + timedelta(days=days)
+        #due_date = due_date.strftime("%m/%d/%y")
+
+        try:
+
+            user = UserAccount.objects.get(email_address=request.user)
+
+        except UserAccount.DoesNotExist:
+            #django_statsd.stop('api.get.due.bills.time.taken')
+            #logger.error("user with the id: %s doesn't exist", user.id)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            #django_statsd.start('api.get.bills.due.db.time.taken')
+            bills = Bills.objects.all().filter(owner_id=user.id).filter(due_date__range=[datetime.now().date(),due_date])
+
+            #django_statsd.stop('api.get.bills.due.db.time.taken')
+
+            if not bills:
+                #django_statsd.stop('api.get.due.bills.time.taken')
+                #logger.error("bills for the user id: %s has been created", user.id)
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        except Bills.DoesNotExist:
+            #logger.error("bills for the user id: %s does not exists", user.id)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        serializer = BillSerializer(bills, many=True)
+        #logger.info("bills for the user id: %s has been retrieved", user.id)
+        #django_statsd.stop('api.get.due.bills.time.taken')
+
+        list_bill_ids = []
+
+        for bill in bills:
+            list_bill_ids.append(bill.id)
+        #pdb.set_trace()
+        sqs_queue.send_message(MessageBody='boto3', MessageAttributes={
+            'email_id': {
+                'StringValue': '{value}'.format(value=request.user),
+                'DataType': 'String'
+            },
+            'bills_list' :{
+                'StringValue': '{value}'.format(value=list_bill_ids),
+                'DataType': 'String'
+            }
+        })
+        #display_time.delay()
+        if 'DB_HOST' in os.environ:
+            publish_to_sns.delay()
+        return Response(serializer.data)
 
