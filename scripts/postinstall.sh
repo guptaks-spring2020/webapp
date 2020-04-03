@@ -6,3 +6,4 @@ sudo python3 manage.py migrate
 
 sudo cp -rf scripts/amazon-cloudwatch-agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
+sudo nohup celery -A webapp worker --loglevel=info </dev/null >/dev/null 2>&1 &
