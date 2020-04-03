@@ -35,12 +35,12 @@ DELETE_SUCCESS = 'deleted'
 UPDATE_SUCCESS = 'updated'
 CREATE_SUCCESS = 'created'
 
-boto_sqs = boto3.resource('sqs'
-                     # region_name='us-east-1'
+boto_sqs = boto3.resource('sqs',
+                      region_name='us-east-1'
                      )
 
-sqs = boto3.client('sqs'
-                   # region_name='us-east-1'
+sqs = boto3.client('sqs',
+                   region_name='us-east-1'
                    )
 
 queue_url = 'https://sqs.us-east-1.amazonaws.com/' + os.environ['AWSID'] + '/' + os.environ['SQSNAME']
@@ -55,8 +55,8 @@ sqs.set_queue_attributes(
 
 #receipt_handle = message['ReceiptHandle']
 
-sns = boto3.client('sns'
-                   #region_name='us-east-1'
+sns = boto3.client('sns',
+                   region_name='us-east-1'
                    )
 
 
