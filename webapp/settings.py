@@ -33,6 +33,42 @@ STATSD_PORT = 8125
 STATSD_PREFIX = 'statsd'
 STATSD_MAXUDPSIZE = 512
 
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost'
+
+#: Only add pickle to this list if your broker is secured
+#: from unwanted access (see userguide/security.html)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_RESULT_BACKEND = 'db+sqlite:///results.sqlite'
+CELERY_TASK_SERIALIZER = 'json'
+
+# Celery
+# AWS Credentials
+# AWS_ACCESS_KEY_ID = "AKIA2ENZFKYNUSXVDDEX"
+# AWS_SECRET_ACCESS_KEY = "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"
+# # Celery
+# BROKER_URL = "sqs://%s:%s@" % (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+#
+# CELERY_ACCEPT_CONTENT = ['application/json']
+# CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_DEFAULT_QUEUE = 'test'
+# CELERY_RESULT_BACKEND = None # Disabling the results backend
+# CELERY_CONTENT_ENCODING = 'utf-8'
+# CELERY_ENABLE_REMOTE_CONTROL = False
+# CELERY_SEND_EVENTS = False
+# SQS_QUEUE_NAME = 'sqsqueue'
+# BROKER_TRANSPORT_OPTIONS = {
+#     'region': 'us-east-1',
+#     'polling_interval': 20,
+# }
+# BROKER_URL = 'amqp://'
+#
+# #: Only add pickle to this list if your broker is secured
+# #: from unwanted access (see userguide/security.html)
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_RESULT_BACKEND = 'db+sqlite:///results.sqlite'
+# CELERY_TASK_SERIALIZER = 'json'
+
 # Application definition
 
 INSTALLED_APPS = [

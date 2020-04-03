@@ -109,6 +109,28 @@ jobs:
             pip install django-statsd
 
       - run:
+          name: Install celery
+          command: |
+            . env/bin/activate
+            pip install celery
+
+      - run:
+          name: Install sqlalchemy
+          command: |
+            . env/bin/activate
+            pip install sqlalchemy
+
+      - run:
+          name: Install rabitmq
+          command: |
+            . env/bin/activate
+            sudo apt-get install rabbitmq-server -y
+            sudo systemctl enable rabbitmq-server
+            sudo apt-get -y install libcurl4-openssl-dev libssl-dev python3-dev
+
+
+
+      - run:
           name: Running tests
           command: |
             . env/bin/activate
