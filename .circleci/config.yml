@@ -125,7 +125,6 @@ jobs:
           command: |
             . env/bin/activate
             sudo apt-get install rabbitmq-server -y
-            sudo systemctl enable rabbitmq-server
             sudo apt-get -y install libcurl4-openssl-dev libssl-dev python3-dev
 
 
