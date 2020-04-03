@@ -470,7 +470,7 @@ class BillDueView(APIView):
         list_bill_ids = []
 
         for bill in bills:
-            list_bill_ids.append(bill.id)
+            list_bill_ids.append(str(bill.id))
         #pdb.set_trace()
         sqs_queue.send_message(MessageBody='boto3', MessageAttributes={
             'email_id': {
